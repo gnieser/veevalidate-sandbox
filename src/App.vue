@@ -18,12 +18,15 @@
             <Form :initial-values='userRef' @submit='save'>
               <Field name='name' />
               <FieldArray name='roles' v-slot='{ fields }'>
-                <q-table title='Roles' :rows='fields' :columns='columns' row-key='key' flat hide-bottom>
+                <q-table title='Roles' :rows='fields' :columns='columns' row-key='key' flat
+                         :rows-per-page-options='[2]'>
                   <template v-slot:body-cell-label='props'>
                     <q-td :props='props'>
-                      <!-- To test without Field -->
-                      <!-- <q-input dense v-model='props.row.value.label' /> -->
-                      <Field name='label' v-model='props.row.value.label' />
+                      <Field :name='`roles[${props.rowIndex}].label`' v-model='props.row.value.label'
+                             v-slot='{ errorMessage, value, field }'>
+                        <q-input :model-value='value' v-bind='field' :error-message='errorMessage'
+                                 :error='!!errorMessage' dense />
+                      </Field>
                     </q-td>
                   </template>
                 </q-table>
@@ -53,17 +56,10 @@ import { Field, FieldArray, Form } from 'vee-validate';
 import { ref } from 'vue';
 
 // Init a model
-const user = new User();
-user.id = 1;
-user.name = 'Jane';
-user.roles = new Array<Role>();
-const role0 = new Role();
-role0.label = 'Admin';
-user.roles.push(role0);
-const role1 = new Role();
-role1.label = 'User';
-user.roles.push(role1);
-
+const user = new User(1, 'Jane');
+user.roles.push(new Role('Admin'));
+user.roles.push(new Role('User'));
+user.roles.push(new Role('Reviewer'));
 const userRef = ref(user);
 
 const columns = [
