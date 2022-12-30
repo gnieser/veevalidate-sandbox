@@ -32,7 +32,7 @@ const formModel: FormContext<User> = useForm<User>({
 });
 
 const columns = [
-  { name: 'label', label: 'Label', align: 'center' }
+  { name: 'label', label: 'Label', align: 'center', sortable: true }
 ];
 
 defineExpose({ formModel });
