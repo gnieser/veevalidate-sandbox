@@ -2,10 +2,13 @@
   <div>
     <Field name='name' />
     <FieldArray name='roles' v-slot='{ fields }'>
-      <q-table title='Roles' :rows='fields' :columns='columns' row-key='key'>
+      <q-table title='Roles' :rows='fields' :columns='columns' row-key='key' flat>
         <template v-slot:body-cell-label='props'>
           <q-td :props='props'>
-            <Field name='label' v-model='props.row.value.label' />
+            <!-- To test without Field -->
+            <!-- <q-input v-model='props.row.value.label' />-->
+            <!-- FIXME: the below Field mixup the role labels and adds one at the root of form -->
+             <Field name='label' v-model='props.row.value.label' />
           </q-td>
         </template>
       </q-table>
@@ -30,6 +33,9 @@ watch(() => props.modelValue, () => {
 const formModel: FormContext<User> = useForm<User>({
   initialValues: modelValueRef
 });
+
+console.log('initialValues', formModel.meta.value.initialValues);
+console.log('values', formModel.values);
 
 const columns = [
   { name: 'label', label: 'Label', align: 'center', sortable: true }

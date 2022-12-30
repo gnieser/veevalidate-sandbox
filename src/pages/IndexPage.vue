@@ -68,7 +68,6 @@ const liveFormModel = ref();
 onMounted(() => {
   if (formRef.value) {
     liveFormModel.value = ref(formRef.value.formModel);
-    console.log(liveFormModel.value);
   }
 });
 
