@@ -2,20 +2,20 @@
   <q-layout view='lHh Lpr lFf'>
     <q-header elevated>
       <q-toolbar>
-        <q-toolbar-title>Quasar App</q-toolbar-title>
+        <q-toolbar-title>Quasar/VeeValidate: QTable with FieldArray</q-toolbar-title>
         <div>Quasar v{{ $q.version }}</div>
       </q-toolbar>
     </q-header>
 
     <q-page-container>
-      <q-page class='row items-center justify-evenly'>
+      <q-page class='row items-start justify-evenly q-pa-md'>
         <q-card>
           <q-card-section>
             <div class='text-h6'>User Form</div>
           </q-card-section>
           <q-separator />
           <q-card-section>
-            <q-form @submit='onSubmit'>
+            <q-form @submit='onSubmit' @reset='onReset'>
               <Field name='name' v-slot='{ field, value, errorMessage }'>
                 <q-input label='Name' :model-value='value' v-bind='field' :error-message='errorMessage'
                          :error='!!errorMessage' dense />
@@ -27,7 +27,7 @@
                   <q-btn icon='add' round flat color='primary' @click='handleAddRole' />
                 </template>
                 <template v-slot:body-cell-label='props'>
-                  <q-td :props='props' v-if='tableMounted'>
+                  <q-td :props='props'>
                     <Field :name='`roles[${fieldIndex(props)}].label`' v-slot='{ field, value, errorMessage }'>
                       <q-input :label='field.name' :model-value='value' v-bind='field' :error-message='errorMessage'
                                :error='!!errorMessage' dense />
@@ -39,7 +39,10 @@
                          @click.stop='props.selected = true; handleDeleteRole(props)' />
                 </template>
               </q-table>
-              <q-btn icon='save' round type='submit' color='primary' />
+              <div class='q-mt-sm'>
+                <q-btn icon='save' round type='submit' color='primary' />
+                <q-btn icon='cancel' round outline type='reset' color='negative' class="q-ml-sm" />
+              </div>
             </q-form>
           </q-card-section>
         </q-card>
@@ -70,7 +73,7 @@
 <script setup lang='ts'>
 import { Role, User } from 'src/models';
 import { Field, FieldEntry, FormContext, useFieldArray, useForm } from 'vee-validate';
-import { onMounted, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 
 // Init a model
 const user = new User(1, 'Jane');
@@ -79,10 +82,8 @@ user.roles.push(new Role('User'));
 user.roles.push(new Role('Reviewer'));
 const userRef = ref(user);
 
-// Template ref to table component, along its mounted flag (so the fieldIndex function is not called prematurely)
+// Template ref to table component
 const table = ref();
-const tableMounted = ref(false);
-onMounted(() => tableMounted.value = true);
 
 // QTable columns definition
 const columns = [
@@ -113,6 +114,7 @@ const fieldIndex = (cellProps: Required<{ row: FieldEntry<Role> }>) => {
 const onSubmit = formContext.handleSubmit((values: User) => {
   userRef.value = values;
 });
+const onReset = () => formContext.handleReset();
 
 // Force a reset of the form when the initial values change
 watch(userRef, () => {
@@ -121,7 +123,7 @@ watch(userRef, () => {
 
 // Handler of role addition
 const handleAddRole = () => {
-  const newRole = new Role('New Role');
+  const newRole = new Role('New Role ' + fields.value.length);
   push(newRole);
 };
 
