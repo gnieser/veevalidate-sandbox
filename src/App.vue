@@ -41,7 +41,7 @@
               </q-table>
               <div class='q-mt-sm'>
                 <q-btn icon='save' round type='submit' color='primary' />
-                <q-btn icon='cancel' round outline type='reset' color='negative' class="q-ml-sm" />
+                <q-btn icon='cancel' round outline type='reset' color='negative' class='q-ml-sm' />
               </div>
             </q-form>
           </q-card-section>
@@ -72,8 +72,9 @@
 
 <script setup lang='ts'>
 import { Role, User } from 'src/models';
-import { Field, FieldEntry, FormContext, useFieldArray, useForm } from 'vee-validate';
+import { Field, FieldEntry, FormContext, FormValidationResult, useFieldArray, useForm } from 'vee-validate';
 import { ref, watch } from 'vue';
+import { AnySchema, array, object, ObjectSchema, string } from 'yup';
 
 // Init a model
 const user = new User(1, 'Jane');
@@ -81,6 +82,16 @@ user.roles.push(new Role('Admin'));
 user.roles.push(new Role('User'));
 user.roles.push(new Role('Reviewer'));
 const userRef = ref(user);
+
+const userSchema: ObjectSchema<Partial<Record<keyof User, AnySchema>>> = object<User>({
+  name: string().required().min(3).max(15),
+  roles: array().of(
+    object({
+      label: string().required().min(3).max(15)
+    })
+  )
+});
+
 
 // Template ref to table component
 const table = ref();
@@ -98,6 +109,7 @@ const columns = [
 // Vee-validate Form
 const formContext: FormContext<User> = useForm({
   initialValues: userRef,
+  validationSchema: userSchema,
   keepValuesOnUnmount: true
 });
 
@@ -112,7 +124,14 @@ const fieldIndex = (cellProps: Required<{ row: FieldEntry<Role> }>) => {
 // Builds handler for form submission
 // Triggered by the q-form when the inner q-btn with type submit is clicked
 const onSubmit = formContext.handleSubmit((values: User) => {
-  userRef.value = values;
+  formContext.validate().then((validationResult: FormValidationResult<User>) => {
+    if (validationResult.valid) {
+      console.log('FormValidationResult is valid', validationResult);
+      userRef.value = values;
+    } else {
+      console.log('FormValidationResult is not valid', validationResult);
+    }
+  });
 });
 const onReset = () => formContext.handleReset();
 
