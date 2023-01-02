@@ -89,7 +89,7 @@ const columns = [
   {
     name: 'label', label: 'Label', align: 'center', field: (field: FieldEntry<Role>) => {
       console.log('field', field)
-      return field.value.label; // TODO Found out why the row.value is sometimes undefined
+      return field.value.label; // TODO Found out why the field.value is sometimes undefined
     }, sortable: true,
     sort: (a: string, b: string) => {
       console.log('compare', a, b);
