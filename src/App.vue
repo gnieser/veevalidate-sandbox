@@ -87,14 +87,9 @@ onMounted(() => tableMounted.value = true);
 // QTable columns definition
 const columns = [
   {
-    name: 'label', label: 'Label', align: 'center', field: (field: FieldEntry<Role>) => {
-      console.log('field', field)
-      return field.value.label; // TODO Found out why the field.value is sometimes undefined
-    }, sortable: true,
-    sort: (a: string, b: string) => {
-      console.log('compare', a, b);
-      return a.localeCompare(b);
-    }
+    name: 'label', label: 'Label', align: 'center', sortable: true,
+    field: (field: FieldEntry<Role>) => field.value.label,
+    sort: (labelA: string, labelB: string) => labelA.localeCompare(labelB) // Not needed for string, kept for demo
   },
   { name: 'delete', label: 'Delete', align: 'center' }
 ];
@@ -110,7 +105,7 @@ const { fields, push, remove } = useFieldArray<Role>('roles');
 
 // Computes the index in the fields array of a given cell props. Used to build the Field's path.
 const fieldIndex = (cellProps: Required<{ row: FieldEntry<Role> }>) => {
-  return table.value.filteredSortedRows.findIndex((row: FieldEntry<Role>) => row.value === cellProps.row.value);
+  return fields.value.findIndex((field: FieldEntry<Role>) => field.value === cellProps.row.value);
 };
 
 // Builds handler for form submission
@@ -121,7 +116,6 @@ const onSubmit = formContext.handleSubmit((values: User) => {
 
 // Force a reset of the form when the initial values change
 watch(userRef, () => {
-  console.log('Form is being reset');
   formContext.handleReset();
 });
 
@@ -133,8 +127,7 @@ const handleAddRole = () => {
 
 // Handler of role deletion
 const handleDeleteRole = (cellProps: Required<{ row: FieldEntry<Role> }>) => {
-  const index = fields.value.findIndex((field: FieldEntry<Role>) => field.value === cellProps.row.value);
-  remove(index);
+  remove(fieldIndex(cellProps));
 };
 
 </script>
