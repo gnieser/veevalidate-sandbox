@@ -45,6 +45,15 @@
         </q-card>
         <q-card>
           <q-card-section>
+            <div class='text-h6'>FieldArray Model</div>
+          </q-card-section>
+          <q-separator />
+          <q-card-section>
+            <pre class='row'>{{ fields }}</pre>
+          </q-card-section>
+        </q-card>
+        <q-card>
+          <q-card-section>
             <div class='text-h6'>Saved Model</div>
           </q-card-section>
           <q-separator />
@@ -78,8 +87,12 @@ onMounted(() => tableMounted.value = true);
 // QTable columns definition
 const columns = [
   {
-    name: 'label', label: 'Label', align: 'center', field: (row: FieldEntry<Role>) => row.value.label, sortable: true,
+    name: 'label', label: 'Label', align: 'center', field: (row: FieldEntry<Role>) => {
+      console.log('field row', row)
+      return row.value.label; // TODO Found out why the row.value is sometimes undefined
+    }, sortable: true,
     sort: (a: string, b: string) => {
+      console.log('compare', a, b);
       return a.localeCompare(b);
     }
   },
@@ -93,11 +106,11 @@ const formContext: FormContext<User> = useForm({
 });
 
 // Vee-validate roles field arrays
-const { fields, push, remove } = useFieldArray('roles');
+const { fields, push, remove } = useFieldArray<Role>('roles');
 
 // Computes the index in the fields array of a given cell props. Used to build the Field's path.
-const fieldIndex = (cellProps: Required<{ row: FieldEntry<User> }>) => {
-  return table.value.filteredSortedRows.findIndex((row: FieldEntry<User>) => row.value === cellProps.row.value);
+const fieldIndex = (cellProps: Required<{ row: FieldEntry<Role> }>) => {
+  return table.value.filteredSortedRows.findIndex((row: FieldEntry<Role>) => row.value === cellProps.row.value);
 };
 
 // Builds handler for form submission
@@ -108,8 +121,9 @@ const onSubmit = formContext.handleSubmit((values: User) => {
 
 // Force a reset of the form when the initial values change
 watch(userRef, () => {
+  console.log('Form is being reset');
   formContext.handleReset();
-})
+});
 
 // Handler of role addition
 const handleAddRole = () => {
@@ -118,10 +132,8 @@ const handleAddRole = () => {
 };
 
 // Handler of role deletion
-const handleDeleteRole = (cellProps: Required<{ row: FieldEntry<User> }>) => {
-  const index = fields.value.findIndex(r => {
-    return r.value === cellProps.row.value;
-  });
+const handleDeleteRole = (cellProps: Required<{ row: FieldEntry<Role> }>) => {
+  const index = fields.value.findIndex((field: FieldEntry<Role>) => field.value === cellProps.row.value);
   remove(index);
 };
 
