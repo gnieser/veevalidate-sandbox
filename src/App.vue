@@ -87,9 +87,9 @@ onMounted(() => tableMounted.value = true);
 // QTable columns definition
 const columns = [
   {
-    name: 'label', label: 'Label', align: 'center', field: (row: FieldEntry<Role>) => {
-      console.log('field row', row)
-      return row.value.label; // TODO Found out why the row.value is sometimes undefined
+    name: 'label', label: 'Label', align: 'center', field: (field: FieldEntry<Role>) => {
+      console.log('field', field)
+      return field.value.label; // TODO Found out why the row.value is sometimes undefined
     }, sortable: true,
     sort: (a: string, b: string) => {
       console.log('compare', a, b);
