@@ -20,7 +20,7 @@
                 <q-input label='Name' :model-value='value' v-bind='field' :error-message='errorMessage'
                          :error='!!errorMessage' dense />
               </Field>
-              <q-table ref='table' title='Roles' :rows='fields' :columns='columns' row-key='key' flat
+              <q-table title='Roles' :rows='fields' :columns='columns' row-key='key' flat
                        :rows-per-page-options='[2]' bordered dense>
                 <template v-slot:top>
                   <q-space />
