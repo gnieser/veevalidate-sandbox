@@ -92,10 +92,6 @@ const userSchema: ObjectSchema<Partial<Record<keyof User, AnySchema>>> = object<
   )
 });
 
-
-// Template ref to table component
-const table = ref();
-
 // QTable columns definition
 const columns = [
   {
