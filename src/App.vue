@@ -28,13 +28,14 @@
                 </template>
                 <template v-slot:body-cell-label='props'>
                   <q-td :props='props'>
-                    <Field :name='`roles[${fieldIndex(props)}].label`' v-slot='{ field, value, errorMessage }'>
+                    <Field :name='`roles[${props.rowIndex}].label`' v-slot='{ field, value, errorMessage }'>
                       <q-input :label='field.name' :model-value='value' v-bind='field' :error-message='errorMessage'
                                :error='!!errorMessage' dense />
                     </Field>
                   </q-td>
                 </template>
                 <template v-slot:body-cell-delete='props'>
+                  <pre>{{ props.rowIndex }}</pre>
                   <q-btn icon='delete' round flat color='primary'
                          @click.stop='props.selected = true; handleDeleteRole(props)' />
                 </template>
@@ -112,11 +113,6 @@ const formContext: FormContext<User> = useForm({
 // Vee-validate roles field arrays
 const { fields, push, remove } = useFieldArray<Role>('roles');
 
-// Computes the index in the fields array of a given cell props. Used to build the Field's path.
-const fieldIndex = (cellProps: Required<{ row: FieldEntry<Role> }>) => {
-  return fields.value.findIndex((field: FieldEntry<Role>) => field.value === cellProps.row.value);
-};
-
 // Builds handler for form submission
 // Triggered by the q-form when the inner q-btn with type submit is clicked
 const onSubmit = formContext.handleSubmit((values: User) => {
@@ -143,8 +139,8 @@ const handleAddRole = () => {
 };
 
 // Handler of role deletion
-const handleDeleteRole = (cellProps: Required<{ row: FieldEntry<Role> }>) => {
-  remove(fieldIndex(cellProps));
+const handleDeleteRole = (cellProps: Required<{ rowIndex: number }>) => {
+  remove(cellProps.rowIndex);
 };
 
 </script>
